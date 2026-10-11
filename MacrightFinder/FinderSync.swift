@@ -21,7 +21,10 @@ final class FinderSync: FIFinderSync {
         func add(_ feature: MenuFeature, title: String? = nil, action: Selector) {
             let item = NSMenuItem(title: title ?? feature.title, action: action, keyEquivalent: "")
             item.target = self
-            item.image = NSImage(systemSymbolName: feature.symbol, accessibilityDescription: nil)
+            // Template images are tinted by Finder, so they follow light/dark mode.
+            let image = NSImage(systemSymbolName: feature.symbol, accessibilityDescription: nil)
+            image?.isTemplate = true
+            item.image = image
             menu.addItem(item)
         }
 
