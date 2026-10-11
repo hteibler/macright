@@ -9,29 +9,23 @@ enum ActionHandler {
                 let folder = try targetFolder(of: request)
                 guard let name = promptForName(title: "New Folder", defaultName: "untitled folder",
                                                folder: folder) else { return }
-                let url = try FileOps.createFolder(named: name, in: folder)
-                NSWorkspace.shared.activateFileViewerSelecting([url])
+                try FileOps.createFolder(named: name, in: folder)
             case .newFile:
                 let folder = try targetFolder(of: request)
                 guard let name = promptForName(title: "New File", defaultName: "untitled.txt",
                                                folder: folder) else { return }
-                let url = try FileOps.createFile(named: name, in: folder)
-                NSWorkspace.shared.activateFileViewerSelecting([url])
+                try FileOps.createFile(named: name, in: folder)
             case .duplicate:
-                var created: [URL] = []
                 for path in request.paths {
-                    created.append(try FileOps.duplicate(URL(fileURLWithPath: path)))
+                    try FileOps.duplicate(URL(fileURLWithPath: path))
                 }
-                if !created.isEmpty { NSWorkspace.shared.activateFileViewerSelecting(created) }
             case .paste:
                 let folder = try targetFolder(of: request)
                 let sources = MacrightShared.cutPaths
-                var moved: [URL] = []
                 for path in sources where FileManager.default.fileExists(atPath: path) {
-                    moved.append(try FileOps.move(URL(fileURLWithPath: path), into: folder))
+                    try FileOps.move(URL(fileURLWithPath: path), into: folder)
                 }
                 MacrightShared.cutPaths = []
-                if !moved.isEmpty { NSWorkspace.shared.activateFileViewerSelecting(moved) }
             case .openInTerminal:
                 let folder = try targetFolder(of: request)
                 let terminal = URL(fileURLWithPath: "/System/Applications/Utilities/Terminal.app")
