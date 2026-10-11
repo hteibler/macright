@@ -21,10 +21,7 @@ final class FinderSync: FIFinderSync {
         func add(_ feature: MenuFeature, title: String? = nil, action: Selector) {
             let item = NSMenuItem(title: title ?? feature.title, action: action, keyEquivalent: "")
             item.target = self
-            // Template images are tinted by Finder, so they follow light/dark mode.
-            let image = NSImage(systemSymbolName: feature.symbol, accessibilityDescription: nil)
-            image?.isTemplate = true
-            item.image = image
+            item.image = icon(for: feature)
             menu.addItem(item)
         }
 
@@ -42,6 +39,18 @@ final class FinderSync: FIFinderSync {
             add(.openInTerminal, action: #selector(openInTerminal))
         }
         return menu.items.isEmpty ? nil : menu
+    }
+
+    /// Finder does not tint images coming from an extension, so render the symbol
+    /// in the color of the current appearance (white in dark mode, black in light).
+    private func icon(for feature: MenuFeature) -> NSImage? {
+        let isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        let color: NSColor = isDark ? .white : .black
+        let configuration = NSImage.SymbolConfiguration(paletteColors: [color])
+        let image = NSImage(systemSymbolName: feature.symbol, accessibilityDescription: nil)?
+            .withSymbolConfiguration(configuration)
+        image?.isTemplate = false
+        return image
     }
 
     // MARK: - Actions
