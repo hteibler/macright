@@ -1,0 +1,79 @@
+name: Macright
+options:
+  bundleIdPrefix: at.teibler
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: V8583J8736
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "Developer ID Application"
+    ENABLE_HARDENED_RUNTIME: YES
+    GENERATE_INFOPLIST_FILE: NO
+targets:
+  Macright:
+    type: application
+    platform: macOS
+    sources: [Macright, Shared]
+    dependencies:
+      - target: MacrightFinder
+        embed: true
+    entitlements:
+      path: Macright/Macright.entitlements
+      properties:
+        com.apple.security.application-groups: [V8583J8736.at.teibler.macright]
+    info:
+      path: Macright/Info.plist
+      properties:
+        CFBundleName: macright
+        CFBundleDisplayName: macright
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHumanReadableCopyright: "© Herbert Teibler. Provided without any warranty."
+        CFBundleURLTypes:
+          - CFBundleURLName: at.teibler.macright
+            CFBundleURLSchemes: [macright]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: at.teibler.macright
+        PRODUCT_NAME: macright
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  MacrightFinder:
+    type: app-extension
+    platform: macOS
+    sources: [MacrightFinder, Shared]
+    entitlements:
+      path: MacrightFinder/MacrightFinder.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups: [V8583J8736.at.teibler.macright]
+    info:
+      path: MacrightFinder/Info.plist
+      properties:
+        CFBundleName: MacrightFinder
+        CFBundleDisplayName: macright Finder Extension
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.FinderSync
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).FinderSync
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: at.teibler.macright.finder
+  MacrightTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [Tests, Shared/FileOps.swift]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: at.teibler.macright.tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""

@@ -1,0 +1,12 @@
+# local project notes
+PROJECT.md
+CLAUDE.md
+CONTEXT.md
+
+# build / tooling
+build/
+dist/
+DerivedData/
+*.xcodeproj/
+xcuserdata/
+.DS_Store
