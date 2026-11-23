@@ -58,6 +58,14 @@ final class FileOpsTests: XCTestCase {
         XCTAssertEqual(try String(contentsOf: existing, encoding: .utf8), "keep")
     }
 
+    func testCopyKeepsSourceAndHandlesCollision() throws {
+        let dest = try FileOps.createFolder(named: "dest", in: dir)
+        let source = try FileOps.createFile(named: "a.txt", in: dir)
+        XCTAssertEqual(try FileOps.copy(source, into: dest).lastPathComponent, "a.txt")
+        XCTAssertEqual(try FileOps.copy(source, into: dest).lastPathComponent, "a_2.txt")
+        XCTAssertTrue(fm.fileExists(atPath: source.path))
+    }
+
     func testMoveIntoItselfIsRejected() throws {
         let folder = try FileOps.createFolder(named: "a", in: dir)
         let child = try FileOps.createFolder(named: "b", in: folder)

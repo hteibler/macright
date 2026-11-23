@@ -33,11 +33,9 @@ final class FinderSync: FIFinderSync {
         }
         if MacrightShared.isEnabled(.cutPaste) {
             if hasSelection { add(.cutPaste, title: "Cut", action: #selector(cut)) }
-            let pending = pendingCutPaths()
-            if !pending.isEmpty {
-                let what = pending.count == 1
-                    ? "“\(URL(fileURLWithPath: pending[0]).lastPathComponent)”"
-                    : "\(pending.count) Items"
+            if let source = MacrightShared.pasteSource() {
+                let what = source.urls.count == 1
+                    ? "“\(source.urls[0].lastPathComponent)”" : "\(source.urls.count) Items"
                 add(.cutPaste, title: "Paste \(what)", action: #selector(paste))
             }
         }
@@ -76,8 +74,7 @@ final class FinderSync: FIFinderSync {
     }
 
     @objc private func cut() {
-        let urls = FIFinderSyncController.default().selectedItemURLs() ?? []
-        MacrightShared.cutPaths = urls.map(\.path)
+        MacrightShared.cut(FIFinderSyncController.default().selectedItemURLs() ?? [])
     }
 
     // MARK: - Helpers
@@ -86,11 +83,6 @@ final class FinderSync: FIFinderSync {
         let controller = FIFinderSyncController.default()
         if let selected = controller.selectedItemURLs(), !selected.isEmpty { return selected }
         return controller.targetedURL().map { [$0] } ?? []
-    }
-
-    /// Cut items that still exist.
-    private func pendingCutPaths() -> [String] {
-        MacrightShared.cutPaths.filter { FileManager.default.fileExists(atPath: $0) }
     }
 
     private func send(_ action: RequestAction, usesTarget: Bool) {

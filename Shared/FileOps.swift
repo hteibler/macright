@@ -74,6 +74,16 @@ enum FileOps {
         return target
     }
 
+    /// Copies `url` into `folder`. On a name clash a `_2`, `_3`, ... suffix is added.
+    @discardableResult
+    static func copy(_ url: URL, into folder: URL, fm: FileManager = .default) throws -> URL {
+        let target = uniqueURL(in: folder,
+                               stem: url.deletingPathExtension().lastPathComponent,
+                               ext: url.pathExtension, fm: fm)
+        try fm.copyItem(at: url, to: target)
+        return target
+    }
+
     /// Folder an action applies to: the item itself if it is a folder, else its parent.
     static func containingFolder(of url: URL, fm: FileManager = .default) -> URL {
         var isDir: ObjCBool = false

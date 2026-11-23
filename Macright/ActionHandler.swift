@@ -20,12 +20,13 @@ enum ActionHandler {
                     try FileOps.duplicate(URL(fileURLWithPath: path))
                 }
             case .paste:
-                let sources = MacrightShared.cutPaths
+                guard let source = MacrightShared.pasteSource() else { return }
                 // A cut is used up by one paste attempt, also a failed one.
-                defer { MacrightShared.cutPaths = [] }
+                defer { if source.isMove { MacrightShared.clearCut() } }
                 let folder = try targetFolder(of: request)
-                for path in sources where FileManager.default.fileExists(atPath: path) {
-                    try FileOps.move(URL(fileURLWithPath: path), into: folder)
+                for url in source.urls {
+                    if source.isMove { try FileOps.move(url, into: folder) }
+                    else { try FileOps.copy(url, into: folder) }
                 }
             case .openInTerminal:
                 let folder = try targetFolder(of: request)

@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 
 /// Menu entries the user can enable or disable in the settings.
 enum MenuFeature: String, CaseIterable {
@@ -49,7 +49,7 @@ enum MacrightShared {
     static let showMenuBarIconKey = "showMenuBarIcon"
     static let firstRunKey = "didFirstRun"
     private static let requestKey = "request"
-    private static let cutPathsKey = "cutPaths"
+    private static let cutChangeCountKey = "cutChangeCount"
     /// Requests older than this are ignored by the host.
     static let requestTTL: TimeInterval = 30
 
@@ -61,9 +61,33 @@ enum MacrightShared {
         defaults.object(forKey: feature.defaultsKey) as? Bool ?? true
     }
 
-    static var cutPaths: [String] {
-        get { defaults.stringArray(forKey: cutPathsKey) ?? [] }
-        set { defaults.set(newValue, forKey: cutPathsKey) }
+    /// Items Paste would act on: the files on the general pasteboard. If they were put
+    /// there by macright's Cut (pasteboard unchanged since), Paste moves, else it copies.
+    struct PasteSource {
+        var urls: [URL]
+        var isMove: Bool
+    }
+
+    static func pasteSource() -> PasteSource? {
+        let pasteboard = NSPasteboard.general
+        let urls = (pasteboard.readObjects(forClasses: [NSURL.self],
+                                           options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? [])
+            .filter { FileManager.default.fileExists(atPath: $0.path) }
+        guard !urls.isEmpty else { return nil }
+        let isMove = defaults.object(forKey: cutChangeCountKey) as? Int == pasteboard.changeCount
+        return PasteSource(urls: urls, isMove: isMove)
+    }
+
+    /// Puts the items on the pasteboard and marks them as cut.
+    static func cut(_ urls: [URL]) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.writeObjects(urls as [NSURL])
+        defaults.set(pasteboard.changeCount, forKey: cutChangeCountKey)
+    }
+
+    static func clearCut() {
+        defaults.removeObject(forKey: cutChangeCountKey)
     }
 
     static func post(_ request: ActionRequest) {
