@@ -10,9 +10,14 @@ VERSION="$(sed -n 's/.*MARKETING_VERSION: "\(.*\)"/\1/p' project.yml | head -1)"
 APP="build/Build/Products/Release/macright.app"
 DMG="dist/macright-$VERSION.dmg"
 
+# Build number = commit count; build date = now (shown in the Help window).
+BUILD_NUMBER="$(git rev-list --count HEAD)"
+BUILD_DATE="$(date '+%Y-%m-%d %H:%M %Z')"
+
 xcodegen generate
 xcodebuild -project Macright.xcodeproj -scheme Macright -configuration Release \
-    -derivedDataPath build clean build | tail -1
+    -derivedDataPath build CURRENT_PROJECT_VERSION="$BUILD_NUMBER" BUILD_DATE="$BUILD_DATE" \
+    clean build | tail -1
 
 codesign --verify --deep --strict --verbose=2 "$APP"
 

@@ -5,7 +5,11 @@ struct HelpView: View {
         let info = Bundle.main.infoDictionary
         let short = info?["CFBundleShortVersionString"] as? String ?? "?"
         let build = info?["CFBundleVersion"] as? String ?? "?"
-        return "Version \(short) (\(build))"
+        return "Version \(short), build \(build)"
+    }
+
+    private var buildDate: String {
+        "Built " + (Bundle.main.infoDictionary?["BuildDate"] as? String ?? "unknown")
     }
 
     var body: some View {
@@ -16,6 +20,7 @@ struct HelpView: View {
                 VStack(alignment: .leading) {
                     Text("macright").font(.title2.bold())
                     Text(version).font(.caption).foregroundStyle(.secondary)
+                    Text(buildDate).font(.caption).foregroundStyle(.secondary)
                 }
             }
             Text("Adds these entries to the Finder right-click menu:")
