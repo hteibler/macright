@@ -33,7 +33,13 @@ final class FinderSync: FIFinderSync {
         }
         if MacrightShared.isEnabled(.cutPaste) {
             if hasSelection { add(.cutPaste, title: "Cut", action: #selector(cut)) }
-            if !pendingCutPaths().isEmpty { add(.cutPaste, title: "Paste", action: #selector(paste)) }
+            let pending = pendingCutPaths()
+            if !pending.isEmpty {
+                let what = pending.count == 1
+                    ? "“\(URL(fileURLWithPath: pending[0]).lastPathComponent)”"
+                    : "\(pending.count) Items"
+                add(.cutPaste, title: "Paste \(what)", action: #selector(paste))
+            }
         }
         if MacrightShared.isEnabled(.openInTerminal) {
             add(.openInTerminal, action: #selector(openInTerminal))
